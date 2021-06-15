@@ -10,3 +10,5 @@ Some of the tools used includes:
 - React Animations
 - Upload Images
 - Export Files
+
+References: Special thanks to Antonio Papa
