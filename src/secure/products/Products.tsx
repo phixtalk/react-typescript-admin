@@ -1,27 +1,35 @@
-import axios from "axios";
-import React from "react";
-import { Link } from "react-router-dom";
-import { User } from "../../interfaces/user";
-import Deleter from "../components/Deleter";
-import Paginator from "../components/Paginator";
-import Wrapper from "../Wrapper";
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
-class Users extends React.Component {
+import React from "react";
+import Wrapper from "../Wrapper";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { Product } from "../../interfaces/product";
+import Paginator from "../components/Paginator";
+import Deleter from "../components/Deleter";
+
+class Products extends React.Component {
   state = {
-    users: [],
+    products: [],
   };
 
   page = 1;
   last_page = 0;
 
   componentDidMount = async () => {
-    const response = await axios.get(`users?page=${this.page}`);
+    const response = await axios.get(`products?page=${this.page}`);
 
-    this.setState({
-      users: response.data.data,
-    });
+    this.setState({ products: response.data.data });
 
     this.last_page = response.data.meta.last_page;
+  };
+
+  handleDelete = async (id: number) => {
+    const products = this.state.products.filter((product: Product) => {
+      return product.id !== id;
+    });
+
+    this.setState({ products: products });
   };
 
   handlePageChange = async (page: number) => {
@@ -30,21 +38,13 @@ class Users extends React.Component {
     await this.componentDidMount();
   };
 
-  handleDelete = async (id: number) => {
-    const users = this.state.users.filter((user: User) => {
-      return user.id !== id;
-    });
-
-    this.setState({ users: users });
-  };
-
   render() {
     return (
       <Wrapper>
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <div className="btn-toolbar mb-2 mb-md-0">
             <Link
-              to={"/users/create"}
+              to={"/products/create"}
               className="btn btn-sm btn-outline-secondary"
             >
               Add
@@ -57,31 +57,36 @@ class Users extends React.Component {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Price</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {this.state.users.map((user: User) => {
+              {this.state.products.map((product: Product) => {
                 return (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{`${user.first_name} ${user.last_name}`}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role.name}</td>
+                  <tr key={product.id}>
+                    <td>{product.id}</td>
+                    <td>
+                      <img src={product.image} alt="" width="50" />
+                    </td>
+                    <td>{product.title}</td>
+                    <td>{product.description}</td>
+                    <td>{product.price}</td>
                     <td>
                       <div className="btn-group mr-2">
                         <Link
-                          to={`/users/${user.id}/edit`}
+                          to={`/products/${product.id}/edit`}
                           className="btn btn-sm btn-outline-secondary"
                         >
                           Edit
                         </Link>
+
                         <Deleter
-                          id={user.id}
-                          endpoint={"users"}
+                          id={product.id}
+                          endpoint={"products"}
                           handleDelete={this.handleDelete}
                         />
                       </div>
@@ -102,4 +107,4 @@ class Users extends React.Component {
   }
 }
 
-export default Users;
+export default Products;

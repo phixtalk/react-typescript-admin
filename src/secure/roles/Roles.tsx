@@ -1,9 +1,8 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import axios from "axios";
 import React from "react";
 import { Link } from "react-router-dom";
 import { Role } from "../../interfaces/role";
+import Deleter from "../components/Deleter";
 import Wrapper from "../Wrapper";
 
 class Roles extends React.Component {
@@ -18,16 +17,12 @@ class Roles extends React.Component {
     });
   };
 
-  delete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this record?")) {
-      await axios.delete(`roles/${id}`);
+  handleDelete = async (id: number) => {
+    const roles = this.state.roles.filter((role: Role) => {
+      return role.id !== id;
+    });
 
-      const roles = this.state.roles.filter((role: Role) => {
-        return role.id !== id;
-      });
-
-      this.setState({ roles: roles });
-    }
+    this.setState({ roles: roles });
   };
 
   render() {
@@ -61,18 +56,16 @@ class Roles extends React.Component {
                   <td>
                     <div className="btn-group mr-2">
                       <Link
-                        to={`/users/${role.id}/edit`}
+                        to={`/roles/${role.id}/edit`}
                         className="btn btn-sm btn-outline-secondary"
                       >
                         Edit
                       </Link>
-                      <a
-                        style={{ cursor: "pointer" }}
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => this.delete(role.id)}
-                      >
-                        Delete
-                      </a>
+                      <Deleter
+                        id={role.id}
+                        endpoint={"roles"}
+                        handleDelete={this.handleDelete}
+                      />
                     </div>
                   </td>
                 </tr>
