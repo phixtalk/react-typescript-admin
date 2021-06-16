@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Menu = () => (
   <nav
@@ -9,9 +9,19 @@ const Menu = () => (
     <div className="sidebar-sticky pt-3">
       <ul className="nav flex-column">
         <li className="nav-item">
-          <a className="nav-link active" href="#">
+          <NavLink to={"/dashboard"} className="nav-link">
             Dashboard
-          </a>
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to={"/users"} className="nav-link">
+            Users
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to={"/roles"} className="nav-link">
+            Roles
+          </NavLink>
         </li>
       </ul>
     </div>
