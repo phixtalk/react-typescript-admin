@@ -7,8 +7,10 @@ import axios from "axios";
 import { Product } from "../../interfaces/product";
 import Paginator from "../components/Paginator";
 import Deleter from "../components/Deleter";
+import { connect } from "react-redux";
+import { User } from "../../interfaces/user";
 
-class Products extends React.Component {
+class Products extends React.Component<{ user: User }> {
   state = {
     products: [],
   };
@@ -38,9 +40,36 @@ class Products extends React.Component {
     await this.componentDidMount();
   };
 
+  canEdit = () => {
+    return this.props.user.permissions.some((p) => p === "edit_products");
+  };
+
+  actions = (id: number) => {
+    if (this.canEdit()) {
+      return (
+        <div className="btn-group mr-2">
+          <Link
+            to={`/products/${id}/edit`}
+            className="btn btn-sm btn-outline-secondary"
+          >
+            Edit
+          </Link>
+
+          <Deleter
+            id={id}
+            endpoint={"products"}
+            handleDelete={this.handleDelete}
+          />
+        </div>
+      );
+    }
+  };
+
   render() {
-    return (
-      <Wrapper>
+    let addButton = null;
+
+    if (this.canEdit()) {
+      addButton = (
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <div className="btn-toolbar mb-2 mb-md-0">
             <Link
@@ -51,7 +80,12 @@ class Products extends React.Component {
             </Link>
           </div>
         </div>
+      );
+    }
 
+    return (
+      <Wrapper>
+        {addButton}
         <div className="table-responsive">
           <table className="table table-striped table-sm">
             <thead>
@@ -75,22 +109,7 @@ class Products extends React.Component {
                     <td>{product.title}</td>
                     <td>{product.description}</td>
                     <td>{product.price}</td>
-                    <td>
-                      <div className="btn-group mr-2">
-                        <Link
-                          to={`/products/${product.id}/edit`}
-                          className="btn btn-sm btn-outline-secondary"
-                        >
-                          Edit
-                        </Link>
-
-                        <Deleter
-                          id={product.id}
-                          endpoint={"products"}
-                          handleDelete={this.handleDelete}
-                        />
-                      </div>
-                    </td>
+                    <td>{this.actions(product.id)}</td>
                   </tr>
                 );
               })}
@@ -107,4 +126,4 @@ class Products extends React.Component {
   }
 }
 
-export default Products;
+export default connect(({ user }: { user: User }) => ({ user }))(Products);

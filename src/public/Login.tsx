@@ -1,9 +1,17 @@
 import axios from "axios";
-import React, { Component, SyntheticEvent } from "react";
+import React, {
+  Component,
+  Dispatch,
+  PropsWithChildren,
+  SyntheticEvent,
+} from "react";
+import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import { User } from "../interfaces/user";
+import setUser from "../redux/actions/setUserAction";
 import "./Public.css";
 
-class Login extends Component {
+class Login extends Component<PropsWithChildren<any>> {
   email = "";
   password = "";
   state = {
@@ -13,15 +21,20 @@ class Login extends Component {
   submit = async (e: SyntheticEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("login", {
+      await axios.post("login", {
         email: this.email,
         password: this.password,
       });
 
-      localStorage.setItem("token", response.data.token);
-      axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
-        "token"
-      )}`;
+      //next, attempt to get user information
+      const response = await axios.get("user");
+
+      this.props.setUser(response.data.data);
+
+      // localStorage.setItem("token", response.data.token);
+      // axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
+      //   "token"
+      // )}`;
 
       this.setState({ redirect: true });
     } catch (error) {
@@ -68,4 +81,10 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    setUser: (user: User) => dispatch(setUser(user)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Login);

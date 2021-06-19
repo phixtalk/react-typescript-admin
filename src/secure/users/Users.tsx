@@ -1,12 +1,13 @@
 import axios from "axios";
 import React from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { User } from "../../interfaces/user";
 import Deleter from "../components/Deleter";
 import Paginator from "../components/Paginator";
 import Wrapper from "../Wrapper";
 
-class Users extends React.Component {
+class Users extends React.Component<{ user: User }> {
   state = {
     users: [],
   };
@@ -38,9 +39,35 @@ class Users extends React.Component {
     this.setState({ users: users });
   };
 
+  actions = (id: number) => {
+    if (this.canEdit()) {
+      return (
+        <div className="btn-group mr-2">
+          <Link
+            to={`/users/${id}/edit`}
+            className="btn btn-sm btn-outline-secondary"
+          >
+            Edit
+          </Link>
+          <Deleter
+            id={id}
+            endpoint={"users"}
+            handleDelete={this.handleDelete}
+          />
+        </div>
+      );
+    }
+  };
+
+  canEdit = () => {
+    return this.props.user.permissions.some((p) => p === "edit_users");
+  };
+
   render() {
-    return (
-      <Wrapper>
+    let addButton = null;
+
+    if (this.canEdit()) {
+      addButton = (
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <div className="btn-toolbar mb-2 mb-md-0">
             <Link
@@ -51,7 +78,11 @@ class Users extends React.Component {
             </Link>
           </div>
         </div>
-
+      );
+    }
+    return (
+      <Wrapper>
+        {addButton}
         <div className="table-responsive">
           <table className="table table-striped table-sm">
             <thead>
@@ -71,21 +102,7 @@ class Users extends React.Component {
                     <td>{`${user.first_name} ${user.last_name}`}</td>
                     <td>{user.email}</td>
                     <td>{user.role.name}</td>
-                    <td>
-                      <div className="btn-group mr-2">
-                        <Link
-                          to={`/users/${user.id}/edit`}
-                          className="btn btn-sm btn-outline-secondary"
-                        >
-                          Edit
-                        </Link>
-                        <Deleter
-                          id={user.id}
-                          endpoint={"users"}
-                          handleDelete={this.handleDelete}
-                        />
-                      </div>
-                    </td>
+                    <td>{this.actions(user.id)}</td>
                   </tr>
                 );
               })}
@@ -102,4 +119,4 @@ class Users extends React.Component {
   }
 }
 
-export default Users;
+export default connect(({ user }: { user: User }) => ({ user }))(Users);
